@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# Initialize variables
+file=""
+template=""
+out=""
+bookname=""
+
+# Function to print usage
+usage() {
+  echo "Usage: $0 -f=FILE | -file=FILE -t=TEMPLATE | -template=TEMPLATE -o=OUT | -out=OUT -b=BOOK | -book=BOOK"
+  exit 1
+}
+
+# Function to convert headings and remove curly brackets in a file
+process_typst_file() {
+  sed -i 's/^#\{1\}/=/g; s/^#\{2\}/==/g; s/^#\{3\}/===/g; s/^#\{4\}/====/g; s/^#\{5\}/=====/g; s/^#\{6\}/======/g' "$1"
+  sed -i 's/{{//g; s/}}//g' "$1"
+}
+
+# Parse command-line arguments
+for arg in "$@"; do
+  case $arg in
+    -f=*|--file=*)
+      file="${arg#*=}"
+      shift
+      ;;
+    -t=*|--template=*)
+      template="${arg#*=}"
+      shift
+      ;;
+    -o=*|--out=*)
+      out="${arg#*=}"
+      shift
+      ;;
+    -b=*|--book=*)
+      bookname="${arg#*=}"
+      shift
+      ;;
+    *)
+      echo "Invalid argument: $arg"
+      usage
+      ;;
+  esac
+done
+
+# Check if -f or -b is provided
+if [ -z "$file" ] && [ -z "$bookname" ]; then
+  echo "Error: Please supply a file or bookname"
+  usage
+fi
+
+# If -f is specified, run the compiler
+if [ -n "$file" ]; then
+  if [ -n "$out" ]; then
+    typst compile "$file.typ" "$out"
+    echo "Outputted $out"
+  else
+    echo "Error: Please specify the output file using -o"
+    usage
+  fi
+  exit 0
+fi
+
+# If -b is specified, set the bookname
+if [ -n "$bookname" ]; then
+  book_path="$bookname/book"
+  src_path="$bookname/src"
+  typ_file="$book_path/$bookname.typ"
+  md_file="$book_path/$bookname.md"
+  pdf_file="$book_path/$bookname.pdf"
+
+  # Check if template is specified
+  if [ -n "$template" ]; then
+    cp "$template" "$typ_file"
+  else
+    if [ -f "$src_path/TEMPLATE.typ" ]; then
+      cp "$src_path/TEMPLATE.typ" "$typ_file"
+      cat "$md_file" >> "$typ_file"
+    else
+      cp "$md_file" "$typ_file"
+    fi
+  fi
+
+  # Process the typ file
+  process_typst_file "$typ_file"
+
+  # Run the typst compiler
+  typst compile "$typ_file" "$pdf_file"
+  echo "Outputted $pdf_file"
+  exit 0
+fi
+
+# If no valid action was taken, show usage
+usage
