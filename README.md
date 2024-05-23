@@ -103,3 +103,4 @@ However, I wanted some of the output options that come with Typst or LaTex to pr
 * Bibliography support
 * Footnote / Endnote support
 * Indexing support
+* Obsidian Script
