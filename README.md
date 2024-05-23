@@ -98,9 +98,9 @@ However, I wanted some of the output options that come with Typst or LaTex to pr
 * Contents support
 * More advanced ePub support - covers & styles
 * More advanced Web support - css
-* Other Typst MarkDown conversions - tables, images etc.
+* Other Typst MarkDown conversions - tables, images. mermaid charts etc.
 * LaTex PDF output
 * Bibliography support
 * Footnote / Endnote support
-* Indexing support
+* Indexing & Cross Reference support
 * Obsidian Script
