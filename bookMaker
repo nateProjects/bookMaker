@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Initialize variables
+book_path=""
+output_string=""
+boolean_flag=false
+
+# Function to print usage
+usage() {
+  echo "Usage: $0 -b=DIR | -book=DIR -o=STRING [-y]"
+  exit 1
+}
+
+# Function to concatenate .md files
+concatenate_md_files() {
+  output_file="$1/book/$(basename "$book_path").md"
+  mkdir -p "$1/book"  # Ensure the book directory exists
+  cat "$book_path/src/SUMMARY.md" > "$output_file"
+  find "$book_path/src" -type f -name "*.md" ! -name "SUMMARY.md" -exec cat {} + >> "$output_file"
+  echo "$output_file"
+}
+
+# Function to convert using pandoc
+convert_with_pandoc() {
+  input_file=$1
+  output_file="${input_file%.md}.$output_string"
+  echo "Running pandoc to convert $input_file to $output_file"
+  pandoc "$input_file" -o "$output_file"
+  echo "Outputted $output_file"
+}
+
+# Placeholder function for Typst conversion
+typstConv() {
+  echo "Typst conversion function called."
+  # Implement Typst conversion logic here
+}
+
+# Placeholder function for LaTeX conversion
+LaTexConv() {
+  echo "LaTeX conversion function called."
+  # Implement LaTeX conversion logic here
+}
+
+# Parse command-line arguments
+for arg in "$@"; do
+  case $arg in
+    -b=*|--book=*)
+      book_path="${arg#*=}"
+      shift
+      ;;
+    -o=*|--out=*)
+      output_string="${arg#*=}"
+      shift
+      ;;
+    -y)
+      boolean_flag=true
+      shift
+      ;;
+    *)
+      echo "Invalid argument: $arg"
+      usage
+      ;;
+  esac
+done
+
+# Check if book_path is provided
+if [ -z "$book_path" ]; then
+  echo "Error: Book directory not specified"
+  usage
+fi
+
+# Check if output_string is provided
+if [ -z "$output_string" ]; then
+  echo "Error: Output string not specified"
+  usage
+fi
+
+# Check if the directory exists
+if [ ! -d "$book_path" ]; then
+  echo "Error: Directory '$book_path' does not exist"
+  exit 1
+fi
+
+# Print out list of all subdirectories and files
+echo "Listing all files and subdirectories in '$book_path':"
+find "$book_path" -type d -print -o -type f -print
+
+# Check for .md files
+md_files=$(find "$book_path" -type f -name "*.md")
+if [ -z "$md_files" ]; then
+  echo "Error: No *.md files found in '$book_path'"
+  exit 1
+fi
+
+# If -y flag is not set, prompt the user for confirmation
+if ! $boolean_flag; then
+  read -p "Do you wish to continue? (y/n) " user_response
+  case $user_response in
+    [Yy]* )
+      echo "Continuing..."
+      ;;
+    * )
+      echo "Aborting."
+      exit 1
+      ;;
+  esac
+fi
+
+# Compile the .md files into one .md file
+compiled_md_file=$(concatenate_md_files "$book_path")
+echo "Compiled markdown file: $compiled_md_file"
+
+# Check output string and perform appropriate action
+case $output_string in
+  md)
+    # Already printed the compiled markdown file, no need to print again
+    ;;
+  pdf|odt|docx)
+    convert_with_pandoc "$compiled_md_file"
+    ;;
+  tp|typst)
+    typstConv
+    ;;
+  lt|latex)
+    LaTexConv
+    ;;
+  *)
+    echo "Error: Invalid output format '$output_string'"
+    usage
+    ;;
+esac
