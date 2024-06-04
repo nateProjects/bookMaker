@@ -34,8 +34,6 @@ convert_with_pandoc() {
 typstConv() {
   echo "Typst conversion function called."
   # Insert book.toml values into TEMPLATE.typ
-  read_toml_value
-  replace_template_values
   # Implement Typst conversion logic here
   ./md2typst -b=$book_path
 }
@@ -134,63 +132,3 @@ case $output_string in
     usage
     ;;
 esac
-
-#!/bin/bash
-
-# add book.toml path from bookname/src/book.toml
-# add TEMPLATE.typ path from bookname/book/$bookname.typ
-# (don't change src/TEMPLATE.typ in case something changes)
-
-# Function to read a value from a TOML file
-get_toml_value() {
-    local file=$1
-    local key=$2
-    # Extract the value using grep and sed
-    local value=$(grep -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
-    echo "$value"
-}
-
-read_toml_value() {
-
-tomlpath="$book_path/src/book.toml"
-# Read values from the book.toml file
-title=$(get_toml_value "$tomlpath" "title")
-authors=$(get_toml_value "$tomlpath" "authors")
-description=$(get_toml_value "$tomlpath" "description")
-copyright_year=$(get_toml_value "$tomlpath" "copyright-year")
-this_edition=$(get_toml_value "$tomlpath" "this-edition")
-printed_by=$(get_toml_value "$tomlpath" "printed-by")
-contact_address=$(get_toml_value "$tomlpath" "contact-address")
-website_address=$(get_toml_value "$tomlpath" "website-address")
-page_size=$(get_toml_value "$tomlpath" "page-size")
-outer_margin=$(get_toml_value "$tomlpath" "outer-margin")
-inner_margin=$(get_toml_value "$tomlpath" "inner-margin")
-header=$(get_toml_value "$tomlpath" "header")
-footer=$(get_toml_value "$tomlpath" "footer")
-contents=$(get_toml_value "$tomlpath" "contents")
-cover_image=$(get_toml_value "$tomlpath" "cover-image")
-}
-
-# Print the values (for testing purposes)
-# echo "title=$title"
-
-replace_template_values() {
-# Replace placeholders in TEMPLATE.typ
-sed -i "s/{{\$title}}/$title/g" TEMPLATE.typ
-sed -i "s/{{\$authors}}/$authors/g" TEMPLATE.typ
-sed -i "s/{{\$description}}/$description/g" TEMPLATE.typ
-sed -i "s/{{\$copyright_year}}/$copyright_year/g"
-sed -i "s/{{\$this-edition}}/$this_edition/g" TEMPLATE.typ
-sed -i "s/{{\$printed-by}}/$printed_by/g" TEMPLATE.typ
-sed -i "s/{{\$contact_address}}/$contact_address/g" TEMPLATE.typ
-sed -i "s/{{\$website_address}}/$website_address/g" TEMPLATE.typ
-sed -i "s/{{\$page-size}}/$page_size/g" TEMPLATE.typ
-sed -i "s/{{\$outer-margin}}/$outer_margin/g" TEMPLATE.typ
-sed -i "s/{{\$inner-margin}}/$inner_margin/g" TEMPLATE.typ
-sed -i "s/{{\$header}}/$header/g" TEMPLATE.typ
-sed -i "s/{{\$footer}}/$footer/g" TEMPLATE.typ
-sed -i "s/{{\$contents}}/$contents/g" TEMPLATE.typ
-sed -i "s/{{\$cover-image}}/$cover_image/g" TEMPLATE.typ
-
-# cover will need slightly different handling
-}
