@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "MarkDown2Typst compiler"
 
 # Initialize variables
 file=""
@@ -8,14 +9,16 @@ bookname=""
 
 # Function to print usage
 usage() {
-  echo "Usage: $0 -f=FILE | -file=FILE -t=TEMPLATE | -template=TEMPLATE -o=OUT | -out=OUT -b=BOOK | -book=BOOK"
+  echo "Usage: $0 -f=FILE | -t=TEMPLATE | -o=OUT | -b=BOOK"
   exit 1
 }
 
 # Function to convert headings and remove curly brackets in a file
 process_typst_file() {
+  echo "Converting Markdown to Typst format"
   sed -i 's/^#\{1\}/=/g; s/^#\{2\}/==/g; s/^#\{3\}/===/g; s/^#\{4\}/====/g; s/^#\{5\}/=====/g; s/^#\{6\}/======/g' "$1"
   sed -i 's/{{//g; s/}}//g' "$1"
+  typst compile "$book_path/$bookname.typ"
 }
 
 # Parse command-line arguments
@@ -62,28 +65,119 @@ if [ -n "$file" ]; then
   exit 0
 fi
 
+# Function to read a value from a TOML file
+get_toml_value() {
+    local file=$1
+    local key=$2
+    echo "Getting value for key: $key from file: $file" # Debugging output
+    # Extract the value using grep and sed
+    local value=$(grep -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
+    echo "$value"
+}
+
+read_toml_value() {
+    echo "reading $src_path/book.toml values"
+    local tomlpath="$src_path/book.toml"
+    
+    # Read values from the book.toml file
+    title=$(get_toml_value "$tomlpath" "title")
+    authors=$(get_toml_value "$tomlpath" "authors")
+    description=$(get_toml_value "$tomlpath" "description")
+    copyright_year=$(get_toml_value "$tomlpath" "copyright-year")
+    this_edition=$(get_toml_value "$tomlpath" "this-edition")
+    printed_by=$(get_toml_value "$tomlpath" "printed-by")
+    contact_address=$(get_toml_value "$tomlpath" "contact-address")
+    website_address=$(get_toml_value "$tomlpath" "website-address")
+    page_size=$(get_toml_value "$tomlpath" "page-size")
+    outer_margin=$(get_toml_value "$tomlpath" "outer-margin")
+    inner_margin=$(get_toml_value "$tomlpath" "inner-margin")
+    header=$(get_toml_value "$tomlpath" "header")
+    footer=$(get_toml_value "$tomlpath" "footer")
+    contents=$(get_toml_value "$tomlpath" "contents")
+    cover_image=$(get_toml_value "$tomlpath" "cover-image")
+
+    # Print for testing purposes
+    echo "title=$title"
+    echo "authors=$authors"
+    echo "description=$description"
+    echo "copyright_year=$copyright_year"
+    echo "this_edition=$this_edition"
+    echo "printed_by=$printed_by"
+    echo "contact_address=$contact_address"
+    echo "website_address=$website_address"
+    echo "page_size=$page_size"
+    echo "outer_margin=$outer_margin"
+    echo "inner_margin=$inner_margin"
+    echo "header=$header"
+    echo "footer=$footer"
+    echo "contents=$contents"
+    echo "cover_image=$cover_image"
+}
+
+replace_template_values() {
+    local template_file="$book_path/TEMPLATE.typ"
+    # Replace placeholders in TEMPLATE.typ
+    sed -i "s#{{\$title}}#$title#g" "$template_file"
+    sed -i "s#{{\$authors}}#$authors#g" "$template_file"
+    sed -i "s#{{\$description}}#$description#g" "$template_file"
+    sed -i "s#{{\$copyright_year}}#$copyright_year#g" "$template_file"
+    sed -i "s#{{\$this-edition}}#$this_edition#g" "$template_file"
+    sed -i "s#{{\$printed-by}}#$printed_by#g" "$template_file"
+    sed -i "s#{{\$contact_address}}#$contact_address#g" "$template_file"
+    sed -i "s#{{\$website_address}}#$website_address#g" "$template_file"
+    sed -i "s#{{\$page-size}}#$page_size#g" "$template_file"
+    sed -i "s#{{\$outer-margin}}#$outer_margin#g" "$template_file"
+    sed -i "s#{{\$inner-margin}}#$inner_margin#g" "$template_file"
+    sed -i "s#{{\$header}}#$header#g" "$template_file"
+    sed -i "s#{{\$footer}}#$footer#g" "$template_file"
+    sed -i "s#{{\$contents}}#$contents#g" "$template_file"
+    sed -i "s#{{\$cover-image}}#$cover_image#g" "$template_file"
+}
+
 # If -b is specified, set the bookname
 if [ -n "$bookname" ]; then
+
+  # ADD check the directory exists
+
   book_path="$bookname/book"
   src_path="$bookname/src"
   typ_file="$book_path/$bookname.typ"
   md_file="$book_path/$bookname.md"
   pdf_file="$book_path/$bookname.pdf"
 
-  # Check if template is specified
-  if [ -n "$template" ]; then
-    cp "$template" "$typ_file"
-  else
-    if [ -f "$src_path/TEMPLATE.typ" ]; then
-      cp "$src_path/TEMPLATE.typ" "$typ_file"
-      cat "$md_file" >> "$typ_file"
-    else
-      cp "$md_file" "$typ_file"
-    fi
+  # Copy the Markdown content to the Typst file
+  cp "$md_file" "$typ_file"
+
+  # Process the Typst file
+  process_typst_file "$typ_file"
+
+  echo "$src_path/TEMPLATE.typ found?"
+
+  # Check if there is a TEMPLATE.typ file in $bookName/src
+  if [ -f "$src_path/TEMPLATE.typ" ]; then
+    # Copy the TEMPLATE.typ file to the $bookName/book folder
+    echo "Found $src_path/TEMPLATE.typ"
+    cp "$src_path/TEMPLATE.typ" "$book_path/TEMPLATE.typ"
   fi
 
-  # Process the typ file
-  process_typst_file "$typ_file"
+  # Check if there is a book.toml file in $bookName/src
+  if [ -f "$src_path/book.toml" ]; then
+    # Call the procedure to copy the values from book.toml to TEMPLATE.typ
+    echo "add book.toml populating TEMPLATE.typ here"
+    read_toml_value
+    echo "title=$title" # print for testing purposes
+    replace_template_values
+  fi
+
+  # Add the template to the start of the Typst file (if specified)
+  if [ -n "$template" ]; then # if no template specified
+    cat "$template" "$typ_file" > "$typ_file.tmp" && mv "$typ_file.tmp" "$typ_file"
+  else # if template in book directory
+    if [ -f "$book_path/TEMPLATE.typ" ]; then
+      echo "Found $book_path/TEMPLATE.typ"
+      cat "$book_path/TEMPLATE.typ" "$typ_file" > "$typ_file.tmp" && mv "$typ_file.tmp" "$typ_file"
+    fi
+  fi
 
   # Run the typst compiler
   typst compile "$typ_file" "$pdf_file"
