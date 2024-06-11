@@ -1,6 +1,6 @@
 [book]
 title = "Book Test"
-authors = ["John Doe"]
+authors = "John Doe"
 description = "The example book covers examples."
 copyright-year = "2024"
 this-edition = "1st"
