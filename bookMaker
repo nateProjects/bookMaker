@@ -34,6 +34,8 @@ convert_with_pandoc() {
 typstConv() {
   echo "Typst conversion function called."
   # Insert book.toml values into TEMPLATE.typ
+  # read_toml_value
+  # replace_template_values
   # Implement Typst conversion logic here
   ./md2typst -b=$book_path
 }
@@ -132,3 +134,4 @@ case $output_string in
     usage
     ;;
 esac
+
