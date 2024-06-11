@@ -69,7 +69,7 @@ fi
 get_toml_value() {
     local file=$1
     local key=$2
-    echo "Getting value for key: $key from file: $file" # Debugging output
+#    echo "Getting value for key: $key from file: $file" # Debugging output
     # Extract the value using grep and sed
     local value=$(grep -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
     echo "$value"
@@ -95,43 +95,28 @@ read_toml_value() {
     footer=$(get_toml_value "$tomlpath" "footer")
     contents=$(get_toml_value "$tomlpath" "contents")
     cover_image=$(get_toml_value "$tomlpath" "cover-image")
-
-    # Print for testing purposes
-    echo "title=$title"
-    echo "authors=$authors"
-    echo "description=$description"
-    echo "copyright_year=$copyright_year"
-    echo "this_edition=$this_edition"
-    echo "printed_by=$printed_by"
-    echo "contact_address=$contact_address"
-    echo "website_address=$website_address"
-    echo "page_size=$page_size"
-    echo "outer_margin=$outer_margin"
-    echo "inner_margin=$inner_margin"
-    echo "header=$header"
-    echo "footer=$footer"
-    echo "contents=$contents"
-    echo "cover_image=$cover_image"
 }
 
 replace_template_values() {
     local template_file="$book_path/TEMPLATE.typ"
     # Replace placeholders in TEMPLATE.typ
-    sed -i "s#{{\$title}}#$title#g" "$template_file"
-    sed -i "s#{{\$authors}}#$authors#g" "$template_file"
-    sed -i "s#{{\$description}}#$description#g" "$template_file"
-    sed -i "s#{{\$copyright_year}}#$copyright_year#g" "$template_file"
-    sed -i "s#{{\$this-edition}}#$this_edition#g" "$template_file"
-    sed -i "s#{{\$printed-by}}#$printed_by#g" "$template_file"
-    sed -i "s#{{\$contact_address}}#$contact_address#g" "$template_file"
-    sed -i "s#{{\$website_address}}#$website_address#g" "$template_file"
-    sed -i "s#{{\$page-size}}#$page_size#g" "$template_file"
-    sed -i "s#{{\$outer-margin}}#$outer_margin#g" "$template_file"
-    sed -i "s#{{\$inner-margin}}#$inner_margin#g" "$template_file"
-    sed -i "s#{{\$header}}#$header#g" "$template_file"
-    sed -i "s#{{\$footer}}#$footer#g" "$template_file"
-    sed -i "s#{{\$contents}}#$contents#g" "$template_file"
-    sed -i "s#{{\$cover-image}}#$cover_image#g" "$template_file"
+    echo "Replacing template values in $template_file"
+    sed -i "s/{{\$title}}/$title/g" "$template_file"
+    echo " what is this? s#{{\$authors}}/$authors/g"
+    sed -i "s/{{\$authors}}/$authors/g" "$template_file"
+    sed -i "s/{{\$description}}/$description/g" "$template_file"
+    sed -i "s/{{\$copyright_year}}/$copyright_year/g" "$template_file"
+    sed -i "s/{{\$this-edition}}/$this_edition/g" "$template_file"
+    sed -i "s/{{\$printed-by}}/$printed_by/g" "$template_file"
+    sed -i "s/{{\$contact_address}}/$contact_address/g" "$template_file"
+    sed -i "s/{{\$website_address}}/$website_address/g" "$template_file"
+    sed -i "s/{{\$page-size}}/$page_size/g" "$template_file"
+    sed -i "s/{{\$outer-margin}}/$outer_margin/g" "$template_file"
+    sed -i "s/{{\$inner-margin}}/$inner_margin/g" "$template_file"
+    sed -i "s/{{\$header}}/$header/g" "$template_file"
+    sed -i "s/{{\$footer}}/$footer/g" "$template_file"
+    sed -i "s/{{\$contents}}/$contents/g" "$template_file"
+    sed -i "s/{{\$cover-image}}/$cover_image/g" "$template_file"
 }
 
 # If -b is specified, set the bookname
@@ -165,7 +150,7 @@ if [ -n "$bookname" ]; then
     # Call the procedure to copy the values from book.toml to TEMPLATE.typ
     echo "add book.toml populating TEMPLATE.typ here"
     read_toml_value
-    echo "title=$title" # print for testing purposes
+    echo "next would replace values" # print for testing purposes
     replace_template_values
   fi
 
