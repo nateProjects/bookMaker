@@ -1,3 +1,5 @@
+/* British quotes */
+#set smartquote(quotes: (single: ("“", "”"),  double: ("‘", "’")))
 #set par(justify: true)
 /* Set font */
 #set text(
@@ -27,3 +29,25 @@
   numbering: "1",
   number-align: center */
 )
+
+= {{$title}}
+
+== {{$authors}}
+
+#pagebreak()
+
+{{$description}}
+
+{{$copyright-year}}
+
+{{$this-edition}}
+
+{{$printed-by}}
+
+{{$contact-address}}
+
+#pagebreak()
+
+#outline()
+
+{{$contents}}
