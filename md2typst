@@ -28,13 +28,39 @@ process_typst_file() {
   # Remove any remaining curly brackets
   sed -i 's/{{//g; s/}}//g' "$1"
 
-  # Convert other specific patterns
-  sed -i 's/---/#pagebreak()/g' "$1"
+  # Convert three dashes etc. to Typst pagebreak
+  sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
+  # Alternatively Convert horizontal rules to Typst line
+  # sed -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
+
+  # Convert Markdown footnotes to Typst footnotes
   sed -i 's/\[\^\(.*\)\]/#footnote[\1]/g' "$1"
+
+  # Convert Markdown photos to Typst photos - presumes images are in the same directory
   sed -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
 
-  # Convert Markdown block quotes to Typst quotes
-  sed -i -E 's/^> (.*)$/#quote[\1]/g' "$1"
+  # Convert Markdown block quotes to Typst quotes - removed autoquotes to fix problem with British quotes
+  sed -i -E 's/^> (.*)$/#quote(block:true, quotes:false)[\1]/g' "$1"
+
+  # Convert Markdown italics to Typst emphasis
+  sed -i -E 's/_(.*?)_/\\_\1\\_/g' "$1"
+  sed -i -E 's/\*(.*?)\*/_\1_/g' "$1"
+
+  # Convert Markdown bold to Typst strong
+  sed -i -E 's/\*\*(.*?)\*\*/\*\1\*/g' "$1"
+  sed -i -E 's/__(.*?)__/\\*\1\\*/g' "$1"
+
+  # Convert HTML underline to Typst underline
+  sed -i -E 's/<u>(.*?)<\/u>/#underline[\1]/g' "$1"
+
+  # Convert Markdown comments to Typst comments
+  sed -i -E 's/%%(.*?)%%/\/\*\1\*\//g' "$1"
+
+  # Convert strikethrough text to Typst strike
+  sed -i -E 's/~~(.*?)~~/#strike[\1]/g' "$1"
+
+  # Convert highlighted text to Typst highlight
+  sed -i -E 's/==(.*?)==/#highlight[\1]/g' "$1"
 
   typst compile "$book_path/$bookname.typ"
 }
