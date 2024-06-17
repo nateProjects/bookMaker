@@ -1,9 +1,11 @@
 [book]
 title = "Book Test"
+sub-title = "Sub Title"
 authors = "John Doe"
 description = "The example book covers examples."
 copyright-year = "2024"
 this-edition = "1st"
+published-by = "Publisher"
 printed-by = "ACME printing"
 contact-address = ""
 website-address = ""
@@ -14,4 +16,4 @@ outer-margin = 0.50in
 inner-margin = 0.90in
 header = "" # not yet implemented
 footer = "" # notyet implemented
-contents = TRUE # not yet implemented
+contents = "TRUE"
