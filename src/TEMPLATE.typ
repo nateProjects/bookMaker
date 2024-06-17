@@ -1,5 +1,3 @@
-/* British quotes */
-#set smartquote(quotes: (single: ("“", "”"),  double: ("‘", "’")))
 #set par(justify: true)
 /* Set font */
 #set text(
