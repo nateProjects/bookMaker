@@ -62,6 +62,15 @@ process_typst_file() {
   # Convert highlighted text to Typst highlight
   sed -i -E 's/==(.*?)==/#highlight[\1]/g' "$1"
 
+  # Remove Markdown front matter
+  sed -i -e '/^---$/,/^---$/d' "$1"
+
+  # Convert Markdown links to Typst links
+  sed -i -E 's/\[(.*?)\]\((.*?)\)/#link("\2")[\1]/g' "$1"
+
+  # Remove everything between ```dataview and the next ``` - enable if needed
+  # sed -i '/^```dataview$/,/^```$/d' "$1"
+
   typst compile "$book_path/$bookname.typ"
 }
 
