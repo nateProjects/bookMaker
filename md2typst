@@ -13,7 +13,7 @@ usage() {
   exit 1
 }
 
-# Function to convert headings and remove curly brackets in a file
+# Function to convert MarkDown to Typst - esp. Obsidian-style Markdown / change as relevant
 process_typst_file() {
   echo "Converting Markdown to Typst format"
 
@@ -29,7 +29,7 @@ process_typst_file() {
   sed -i 's/{{//g; s/}}//g' "$1"
 
   # Convert three dashes etc. to Typst pagebreak
-  sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
+#  sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
   # Alternatively Convert horizontal rules to Typst line
   # sed -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
 
@@ -37,7 +37,7 @@ process_typst_file() {
   sed -i 's/\[\^\(.*\)\]/#footnote[\1]/g' "$1"
 
   # Convert Markdown photos to Typst photos - presumes images are in the same directory
-  sed -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
+#  sed -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
 
   # Convert Markdown block quotes to Typst quotes - removed autoquotes to fix problem with British quotes
   sed -i -E 's/^> (.*)$/#quote(block:true, quotes:false)[\1]/g' "$1"
@@ -57,16 +57,19 @@ process_typst_file() {
   sed -i -E 's/%%(.*?)%%/\/\*\1\*\//g' "$1"
 
   # Convert strikethrough text to Typst strike
-  sed -i -E 's/~~(.*?)~~/#strike[\1]/g' "$1"
+#  sed -i -E 's/~~(.*?)~~/#strike[\1]/g' "$1"
 
   # Convert highlighted text to Typst highlight
   sed -i -E 's/==(.*?)==/#highlight[\1]/g' "$1"
 
-  # Remove Markdown front matter
-  sed -i -e '/^---$/,/^---$/d' "$1"
+  # Convert + bullets to - bullets
+  sed -i -E 's/^\+ /- /g' "$1"
 
   # Convert Markdown links to Typst links
   sed -i -E 's/\[(.*?)\]\((.*?)\)/#link("\2")[\1]/g' "$1"
+
+  # Remove Markdown front matter - can mistake for HR page break
+  # sed -i -e '/^---$/,/^---$/d' "$1"
 
   # Remove everything between ```dataview and the next ``` - enable if needed
   # sed -i '/^```dataview$/,/^```$/d' "$1"
@@ -122,7 +125,6 @@ fi
 get_toml_value() {
   local file=$1
   local key=$2
-  #    echo "Getting value for key: $key from file: $file" # Debugging output
   # Extract the value using grep and sed
   local value=$(grep -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
   echo "$value"
@@ -134,19 +136,23 @@ read_toml_value() {
 
   # Read values from the book.toml file
   title=$(get_toml_value "$tomlpath" "title")
+  sub_title=$(get_toml_value "$tomlpath" "sub-title")
   authors=$(get_toml_value "$tomlpath" "authors")
   description=$(get_toml_value "$tomlpath" "description")
   copyright_year=$(get_toml_value "$tomlpath" "copyright-year")
   this_edition=$(get_toml_value "$tomlpath" "this-edition")
+  published_by=$(get_toml_value "$tomlpath" "published-by")
   printed_by=$(get_toml_value "$tomlpath" "printed-by")
   contact_address=$(get_toml_value "$tomlpath" "contact-address")
-  website_address=$(get_toml_value "$tomlpath" "website-address")
+  #website_address=$(get_toml_value "$tomlpath" "website-address")
+  dedication=$(get_toml_value "$tomlpath" "dedication")
   page_size=$(get_toml_value "$tomlpath" "page-size")
   outer_margin=$(get_toml_value "$tomlpath" "outer-margin")
   inner_margin=$(get_toml_value "$tomlpath" "inner-margin")
   header=$(get_toml_value "$tomlpath" "header")
   footer=$(get_toml_value "$tomlpath" "footer")
   contents=$(get_toml_value "$tomlpath" "contents")
+  fiction=$(get_toml_value "$tomlpath" "fiction")
   cover_image=$(get_toml_value "$tomlpath" "cover-image")
 }
 
@@ -155,20 +161,22 @@ replace_template_values() {
   # Replace placeholders in TEMPLATE.typ
   echo "Replacing template values in $template_file"
   sed -i "s/{{\$title}}/$title/g" "$template_file"
-  echo " what is this? s#{{\$authors}}/$authors/g"
+  sed -i "s/{{\$sub-title}}/$sub_title/g" "$template_file"
   sed -i "s/{{\$authors}}/$authors/g" "$template_file"
   sed -i "s/{{\$description}}/$description/g" "$template_file"
   sed -i "s/{{\$copyright-year}}/$copyright_year/g" "$template_file"
   sed -i "s/{{\$this-edition}}/$this_edition/g" "$template_file"
+  sed -i "s/{{\$published-by}}/$published_by/g" "$template_file"
   sed -i "s/{{\$printed-by}}/$printed_by/g" "$template_file"
   sed -i "s/{{\$contact-address}}/$contact_address/g" "$template_file"
   sed -i "s/{{\$website-address}}/$website_address/g" "$template_file"
+  sed -i "s/{{\$dedication}}/$dedication/g" "$template_file"
   sed -i "s/{{\$page-size}}/$page_size/g" "$template_file"
   sed -i "s/{{\$outer-margin}}/$outer_margin/g" "$template_file"
   sed -i "s/{{\$inner-margin}}/$inner_margin/g" "$template_file"
   sed -i "s/{{\$header}}/$header/g" "$template_file"
   sed -i "s/{{\$footer}}/$footer/g" "$template_file"
-  sed -i "s/{{\$contents}}/$contents/g" "$template_file"
+  # sed -i "s/{{\$contents}}/$contents/g" "$template_file"
   sed -i "s/{{\$cover-image}}/$cover_image/g" "$template_file"
 }
 
