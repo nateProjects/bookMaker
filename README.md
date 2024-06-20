@@ -31,7 +31,7 @@ Windows - Please use Linux install under WSL or a VM and run the Linux installer
 
 Create a book template if one doesn't already exist -
 
-`./bookMaker -n BOOK-NAME`
+`./bookMaker -n=BOOK-NAME`
 
 Configure your book details in BOOK-NAME/src/book.toml
 
