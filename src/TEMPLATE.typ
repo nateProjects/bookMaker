@@ -28,24 +28,64 @@
   number-align: center */
 )
 
-= {{$title}}
+#set page(
+  footer: locate(
+    loc => {
+      let page-number = counter(page).at(loc).first()
+      let match-list = query(selector(<turn-on-page-numbering>).before(loc), loc)
+      if match-list == () { return none }
+      align(center, str(page-number))
+    },
+  ),
+) // Thanks to - https://github.com/typst/webapp-issues/issues/218
 
-== {{$authors}}
+// Title Page
+#page(align(center + horizon)[
+  #text(4em)[{{$title}}]
+  #v(2em, weak: true)
+  #text(2em)[{{$sub-title}}]
+  #v(2em, weak: true)        
+  #text(1.6em)[{{$authors}}] 
+])
 
 #pagebreak()
 
-{{$description}}
-
-{{$copyright-year}}
-
-{{$this-edition}}
-
-{{$printed-by}}
-
-{{$contact-address}}
+// Publisher Details
+#page(align(center + bottom)[ 
+  #text(0.8em)[{{$published-by}}]
+])
 
 #pagebreak()
 
-#outline()
+// Dedication
+#page(align(center)[
+  #text(0.8em)[{{$dedication}}]
+])
 
-{{$contents}}
+#pagebreak()
+
+#pagebreak(to: "odd")
+
+// Contents Page
+#outline(title: [Chapters])
+
+// #set page(numbering: "1 / 1")
+// #counter(page).update(1)
+// <turn-on-page-numbering>
+
+#set page(
+      numbering: "1",
+  // The header always contains the book title on odd pages
+  header: locate(
+    loc => {
+    // Are we on an odd page?
+    let i = counter(page).at(loc).first()
+    if calc.odd(i) {
+      return text(0.95em)[{{$title}}]
+    }
+  // The header always contains the author name on even pages
+    if calc.even(i) {
+      return text(0.95em)[{{$authors}}]
+    }
+  })
+  )
