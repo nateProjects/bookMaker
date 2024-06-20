@@ -16,8 +16,8 @@ usage() {
 concatenate_md_files() {
   output_file="$1/book/$(basename "$book_path").md"
   mkdir -p "$1/book"  # Ensure the book directory exists
-  cat "$book_path/src/SUMMARY.md" > "$output_file"
-  find "$book_path/src" -type f -name "*.md" ! -name "SUMMARY.md" -exec cat {} + >> "$output_file"
+  # cat "$book_path/src/SUMMARY.md" > "$output_file" - no longer needed
+  find "$book_path/src" -type f -name "*.md" ! -exec cat {} + >> "$output_file" # -name "SUMMARY.md" 
   echo "$output_file"
 }
 
@@ -34,9 +34,6 @@ convert_with_pandoc() {
 typstConv() {
   echo "Typst conversion function called."
   # Insert book.toml values into TEMPLATE.typ
-  # read_toml_value
-  # replace_template_values
-  # Implement Typst conversion logic here
   ./md2typst -b=$book_path
 }
 
@@ -134,4 +131,3 @@ case $output_string in
     usage
     ;;
 esac
-
