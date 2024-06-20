@@ -7,13 +7,15 @@ copyright-year = "2024"
 this-edition = "1st"
 published-by = "Publisher"
 printed-by = "ACME printing"
-contact-address = ""
-website-address = ""
+contact-address = "1 Address"
+website-address = "http://address"
+dedication = "dedication"
 
 [output]
 page-size = a5
 outer-margin = 0.50in
 inner-margin = 0.90in
 header = "" # not yet implemented
-footer = "" # notyet implemented
-contents = "TRUE"
+footer = "" # not yet implemented
+contents = "TRUE" # not yet implemented
+fiction = "TRUE" # not yet implemented
