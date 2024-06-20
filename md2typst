@@ -1,4 +1,5 @@
 #!/bin/bash
+# v0.4.1
 echo "MarkDown2Typst compiler"
 
 # Initialize variables
@@ -29,15 +30,12 @@ process_typst_file() {
   sed -i 's/{{//g; s/}}//g' "$1"
 
   # Convert three dashes etc. to Typst pagebreak
-#  sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
+  sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
   # Alternatively Convert horizontal rules to Typst line
   # sed -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
 
   # Convert Markdown footnotes to Typst footnotes
   sed -i 's/\[\^\(.*\)\]/#footnote[\1]/g' "$1"
-
-  # Convert Markdown photos to Typst photos - presumes images are in the same directory
-#  sed -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
 
   # Convert Markdown block quotes to Typst quotes - removed autoquotes to fix problem with British quotes
   sed -i -E 's/^> (.*)$/#quote(block:true, quotes:false)[\1]/g' "$1"
@@ -73,6 +71,9 @@ process_typst_file() {
 
   # Remove everything between ```dataview and the next ``` - enable if needed
   # sed -i '/^```dataview$/,/^```$/d' "$1"
+
+  # Convert Markdown photos to Typst photos - presumes images are in the same directory
+  # sed -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
 
   typst compile "$book_path/$bookname.typ"
 }
