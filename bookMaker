@@ -8,8 +8,17 @@ boolean_flag=false
 
 # Function to print usage
 usage() {
-  echo "Usage: $0 -b=DIR | -book=DIR -o=STRING [-y]"
+  echo "Usage: $0 -b=DIR | -book=DIR -o=STRING [-y] | -n=BOOK-NAME"
   exit 1
+}
+
+# Function to create a new book template
+create_book_template() {
+  book_name=$1
+  mkdir -p "$book_name"
+  cp -R src "$book_name/src"
+  echo "The book template has been created at $book_name"
+  exit 0
 }
 
 # Function to concatenate .md files
@@ -57,6 +66,10 @@ for arg in "$@"; do
     -y)
       boolean_flag=true
       shift
+      ;;
+    -n=*)
+      book_name="${arg#*=}"
+      create_book_template "$book_name"
       ;;
     *)
       echo "Invalid argument: $arg"
