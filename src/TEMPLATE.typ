@@ -1,3 +1,4 @@
+// v0.4.0
 #set par(justify: true)
 /* Set font */
 #set text(
