@@ -1,35 +1,77 @@
 # bookMaker
-A MarkDown to Book exporter
+Create books from MarkDown Notes using Typst
 
+What bookMaker can do -
 
-Initially designed for producing simple (non-scientific) books from MarkDown text files
+It can transform MarkDown text documents into PDF books suitable for publishing.
 
-It uses Pandoc or Typst where available to output PDF files.
+It is suitable for -
 
-Note: It presumes you are storing your chapters in an MDBook structure.
+Creating simple text books (fiction, biography, philosophy)
+
+(or converting markdown to Typst format for further typesetting)
+
+It is not (yet) suitable for -
+
+Scholarly or Scientific works that require citations or diagrams
+
+Using bookMaker
 
 ## Install
 
-clone or download the repository and move it to where you would like to run it from
+Clone or download the repository and move it to where you would like to run it from.
 
-./testSetup will create a MDBook filetree with some sample files
+Requirements: MacOS or Linux / Windows WSL
+
+To install - `./installUnix.sh`
+
+Windows - Please use Linux install under WSL or a VM and run the Linux installer
+
+## Setup
+
+Create a book template if one doesn't already exist -
+
+`./bookMaker -n BOOK-NAME`
+
+Configure your book details in BOOK-NAME/src/book.toml
 
 ## Usage
 
-`./bookMaker -book=DIR -out=OUTPUT -y`
+Run bookMaker from the command line -
 
-eg. `./bookMaker -book=book-name -out=docx -y`
+`./bookMaker -book=BOOK-NAME -out=OUTPUT -y`
 
-... will take all the take all the MarkDown files in book-name/src, compile them together and output them as a single Word (DocX) file in book-name/book
+eg. `./bookMaker -book=BOOK-NAME -out=tp -y`
+
+This will take all the take all the MarkDown files in book-name/src, compile them together and output them as a single PDF file in book-name/book
 
 ## Formats
 
-* pdf - Portable Document Format
-* epub - eBook
-* odt - LibreOffice
-* docx/word - Word
+It supports converting multiple markdown text files into PDF / Typst -
+
+- headings
+- emphasis (italics) & strong (bold) text
+- underlines, strikethroughs, and highlights
+- quotes
+- footnotes
+- page breaks
+- comments
+- embedded {{Typst markup}}
+- page numbering
+- different page sizes
+- title page
+- table of contents
+
+Double curly quotes can be used {{ }} for embedded Typst code which are removed before compilation. So in theory anything that is possible in Typst can be created in your MarkDown documents.
+
+TODO - Check and fix
+
+* pdf - Portable Document Format - XXX
+* epub - eBook - XXX
+* odt - LibreOffice - XXX
+* docx/word - Word - XXX
 * tp/typst PDF - Use Typst book config & compiler
-* md - Compile all MarkDown into a single file
+* md - Compile all MarkDown into a single file (default)
 
 * web/html - HyperText Web Document (not yet implemented)
 * lt/latex PDF - u=Use LaTex book config & compiler (not yet implemented)
@@ -66,7 +108,13 @@ A more complex book order might be like this -
 etc.
 ```
 
+TODO: Obsidian basic note
+
+In Obsidian enable XXX
+
 ## book.toml
+
+TODO - Expand
 
 ```
 page-size = A4, Letter, A5, A6, etc. # consider allowing multiple
@@ -77,30 +125,22 @@ footer = ""
 contents = TRUE # not yet implemented
 ```
 
-## Caveats
-
-I have added using double curly quotes {{ }} for embedded Typst code which are removed before compilation.
-
-So in theory anything that is possible in Typst can be created in your MarkDown documents.
-
 ## Background
 
 Using the Obsidian note taking app I wanted to be able to write books completely in Markdown
 
-However, I wanted some of the output options that come with Typst or LaTex to produce PDF files suitable for print and publication (as well as simplifying eBook creation etc.)
+However, I wanted some of the output options that come with Typst to produce PDF files suitable for print and publication.
 
 ## Versions
 
-0.1.0 - This version: basic pandoc conversion & Typst compilation
+0.5.0 - This version: Basic Fiction Typst export
 
-0.2.0 - 1.0.0 Planned changes: 
+Planned changes: 
 
-* Contents support
-* More advanced ePub support - covers & styles
-* More advanced Web support - css
-* Other Typst MarkDown conversions - tables, images. mermaid charts etc.
-* LaTex PDF output
-* Bibliography support
-* Footnote / Endnote support
-* Indexing & Cross Reference support
-* Obsidian Script
+* 0.6.0 - Basic non-fiction
+* 0.7.0 - eBook export
+* 0.8.0 - GUI tool
+* 0.9.0 - Obsidian plugin
+* 1.0.0 - Installable packages
+
+Possible LaTeX / Tables / Bibliography / Citations / Mermaid / CSS support
