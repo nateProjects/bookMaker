@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.4.1
+# v0.4.3
 echo "MarkDown2Typst compiler"
 
 # Initialize variables
@@ -30,9 +30,9 @@ process_typst_file() {
   sed -i 's/{{//g; s/}}//g' "$1"
 
   # Convert three dashes etc. to Typst pagebreak
-  sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
+  # sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
   # Alternatively Convert horizontal rules to Typst line
-  # sed -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
+  sed -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
 
   # Convert Markdown footnotes to Typst footnotes
   sed -i 's/\[\^\(.*\)\]/#footnote[\1]/g' "$1"
@@ -128,11 +128,11 @@ get_toml_value() {
   local key=$2
   # Extract the value using grep and sed
   local value=$(grep -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
-  echo "$value"
+  echo "$value" # needs this to output converted Typst
 }
 
 read_toml_value() {
-  echo "reading $src_path/book.toml values"
+  echo "Reading $src_path/book.toml values"
   local tomlpath="$src_path/book.toml"
 
   # Read values from the book.toml file
@@ -198,21 +198,20 @@ if [ -n "$bookname" ]; then
   # Process the Typst file
   process_typst_file "$typ_file"
 
-  echo "$src_path/TEMPLATE.typ found?"
+#  echo "$src_path/TEMPLATE.typ found?"
 
   # Check if there is a TEMPLATE.typ file in $bookName/src
   if [ -f "$src_path/TEMPLATE.typ" ]; then
     # Copy the TEMPLATE.typ file to the $bookName/book folder
-    echo "Found $src_path/TEMPLATE.typ"
+    # echo "Found $src_path/TEMPLATE.typ"
     cp "$src_path/TEMPLATE.typ" "$book_path/TEMPLATE.typ"
   fi
 
   # Check if there is a book.toml file in $bookName/src
   if [ -f "$src_path/book.toml" ]; then
     # Call the procedure to copy the values from book.toml to TEMPLATE.typ
-    echo "add book.toml populating TEMPLATE.typ here"
+    # echo "add book.toml populating TEMPLATE.typ here"
     read_toml_value
-    echo "next would replace values" # print for testing purposes
     replace_template_values
   fi
 
@@ -221,7 +220,7 @@ if [ -n "$bookname" ]; then
     cat "$template" "$typ_file" >"$typ_file.tmp" && mv "$typ_file.tmp" "$typ_file"
   else # if template in book directory
     if [ -f "$book_path/TEMPLATE.typ" ]; then
-      echo "Found $book_path/TEMPLATE.typ"
+#      echo "Found $book_path/TEMPLATE.typ"
       cat "$book_path/TEMPLATE.typ" "$typ_file" >"$typ_file.tmp" && mv "$typ_file.tmp" "$typ_file"
     fi
   fi
