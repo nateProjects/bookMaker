@@ -23,7 +23,12 @@ Clone or download the repository and move it to where you would like to run it f
 
 Requirements: MacOS or Linux / Windows WSL
 
-To install - `./installUnix.sh`
+To install - 
+
+```
+sh ./installUnix.sh
+```
+
 
 Windows - Please use Linux install under WSL or a VM and run the Linux installer
 
@@ -39,13 +44,15 @@ Configure your book details in BOOK-NAME/src/book.toml
 
 Run bookMaker from the command line -
 
-`./bookMaker -book=BOOK-NAME -out=OUTPUT -y`
+`./bookMaker -book=BOOK-NAME -out=OUTPUT-TYPE`
 
-eg. `./bookMaker -book=BOOK-NAME -out=tp -y`
+eg. `./bookMaker -book=BOOK-NAME`
 
-This will take all the take all the MarkDown files in book-name/src, compile them together and output them as a single PDF file in book-name/book
+(the -out is optional)
 
-## Formats
+This will take all the take all the MarkDown files in book-name/src, compile them together and output them as a single PDF file in BOOK-NAME/book
+
+## Formatting
 
 It supports converting multiple markdown text files into PDF / Typst -
 
@@ -64,17 +71,9 @@ It supports converting multiple markdown text files into PDF / Typst -
 
 Double curly quotes can be used {{ }} for embedded Typst code which are removed before compilation. So in theory anything that is possible in Typst can be created in your MarkDown documents.
 
-TODO - Check and fix
+Note: Obsidian Front Matter is not detected properly yet. You can change the md2typst/process_typst_file function to alter this.
 
-* pdf - Portable Document Format - XXX
-* epub - eBook - XXX
-* odt - LibreOffice - XXX
-* docx/word - Word - XXX
-* tp/typst PDF - Use Typst book config & compiler
-* md - Compile all MarkDown into a single file (default)
-
-* web/html - HyperText Web Document (not yet implemented)
-* lt/latex PDF - u=Use LaTex book config & compiler (not yet implemented)
+Note: Additional Output Formats are turned off for the time being.
 
 ## MDBook Structure
 
@@ -108,21 +107,40 @@ A more complex book order might be like this -
 etc.
 ```
 
-TODO: Obsidian basic note
+### Obsidian
 
-In Obsidian enable XXX
+To run within Obsidian you must either use the book-name/src structure
+
+or change the srcName string in bookMaker & src_path in md2typst to the appropriate directory name
+
+Using the Commander and Shell Commands community plugins you can create a button on the ribbon bar to automate compiling your book
 
 ## book.toml
 
-TODO - Expand
+Change these values as appropriate -
 
 ```
-page-size = A4, Letter, A5, A6, etc. # consider allowing multiple
-outer-margin = 00mm
-inner-margin = 00mm
-header = "" # edit TEMPLATE.typ for more config
-footer = ""
-contents = TRUE # not yet implemented
+[book]
+title = "Book Test"
+sub-title = "Sub Title"
+authors = "John Doe"
+description = "The example book covers examples."
+copyright-year = "2024"
+this-edition = "1st"
+published-by = "Publisher"
+printed-by = "ACME printing"
+contact-address = "1 Address"
+website-address = "http://address" # not yet implemented
+dedication = "dedication"
+
+[output]
+page-size = a5 # or a4, letter etc.
+outer-margin = 0.50in
+inner-margin = 0.90in
+header = "" # not yet implemented, edit TEMPLATE.typ to change defaults
+footer = "" # not yet implemented, edit TEMPLATE.typ to change defaults
+contents = "TRUE" # not yet implemented
+fiction = "TRUE" # not yet implemented
 ```
 
 ## Background
@@ -144,3 +162,5 @@ Planned changes:
 * 1.0.0 - Installable packages
 
 Possible LaTeX / Tables / Bibliography / Citations / Mermaid / CSS support
+
+This readme - v0.4.3
