@@ -1,11 +1,12 @@
 #!/bin/bash
-# v0.4.0
+# v0.4.3
 echo "bookMaker compiler"
 
 # Initialize variables
 book_path=""
-output_string=""
-boolean_flag=false
+output_string="tp"
+srcPath="src"
+boolean_flag=true
 
 # Function to print usage
 usage() {
@@ -17,7 +18,7 @@ usage() {
 create_book_template() {
   book_name=$1
   mkdir -p "$book_name"
-  cp -R src "$book_name/src"
+  cp -R $srcPath "$book_name/$srcPath"
   echo "The book template has been created at $book_name"
   exit 0
 }
@@ -25,9 +26,20 @@ create_book_template() {
 # Function to concatenate .md files
 concatenate_md_files() {
   output_file="$1/book/$(basename "$book_path").md"
-  mkdir -p "$1/book"  # Ensure the book directory exists
+  mkdir -p "$1/book" # Ensure the book directory exists
+  # Remove the existing output file if it exists
+  if [ -f "$output_file" ]; then
+    rm "$output_file"
+  fi
   # cat "$book_path/src/SUMMARY.md" > "$output_file" - no longer needed
-  find "$book_path/src" -type f -name "*.md" ! -exec cat {} + >> "$output_file" # -name "SUMMARY.md" 
+  find "$book_path/$srcPath" -type f -name "*.md" ! -name "SUMMARY.md" | while read -r file; do
+    cat "$file" >>"$output_file"
+    if [ "$output_string" = "tp" ]; then
+      echo -e "\n#pagebreak()\n" >>"$output_file"
+    else
+      echo -e "\n---\n" >>"$output_file"
+    fi
+  done
   echo "$output_file"
 }
 
@@ -42,7 +54,7 @@ convert_with_pandoc() {
 
 # Placeholder function for Typst conversion
 typstConv() {
-  echo "Typst conversion function called."
+  echo "MD2Typst conversion script called."
   # Insert book.toml values into TEMPLATE.typ
   ./md2typst -b=$book_path
 }
@@ -56,26 +68,26 @@ LaTexConv() {
 # Parse command-line arguments
 for arg in "$@"; do
   case $arg in
-    -b=*|--book=*)
-      book_path="${arg#*=}"
-      shift
-      ;;
-    -o=*|--out=*)
-      output_string="${arg#*=}"
-      shift
-      ;;
-    -y)
-      boolean_flag=true
-      shift
-      ;;
-    -n=*)
-      book_name="${arg#*=}"
-      create_book_template "$book_name"
-      ;;
-    *)
-      echo "Invalid argument: $arg"
-      usage
-      ;;
+  -b=* | --book=*)
+    book_path="${arg#*=}"
+    shift
+    ;;
+  -o=* | --out=*)
+    output_string="${arg#*=}"
+    shift
+    ;;
+  -y)
+    boolean_flag=true
+    shift
+    ;;
+  -n=*)
+    book_name="${arg#*=}"
+    create_book_template "$book_name"
+    ;;
+  *)
+    echo "Invalid argument: $arg"
+    usage
+    ;;
   esac
 done
 
@@ -98,8 +110,8 @@ if [ ! -d "$book_path" ]; then
 fi
 
 # Print out list of all subdirectories and files
-echo "Listing all files and subdirectories in '$book_path':"
-find "$book_path" -type d -print -o -type f -print
+#echo "Listing all files and subdirectories in '$book_path':"
+#find "$book_path" -type d -print -o -type f -print
 
 # Check for .md files
 md_files=$(find "$book_path" -type f -name "*.md")
@@ -112,13 +124,13 @@ fi
 if ! $boolean_flag; then
   read -p "Do you wish to continue? (y/n) " user_response
   case $user_response in
-    [Yy]* )
-      echo "Continuing..."
-      ;;
-    * )
-      echo "Aborting."
-      exit 1
-      ;;
+  [Yy]*)
+    echo "Continuing..."
+    ;;
+  *)
+    echo "Aborting."
+    exit 1
+    ;;
   esac
 fi
 
@@ -128,20 +140,20 @@ echo "Compiled markdown file: $compiled_md_file"
 
 # Check output string and perform appropriate action
 case $output_string in
-  md)
-    # Already printed the compiled markdown file, no need to print again
-    ;;
-  pdf|odt|docx)
-    convert_with_pandoc "$compiled_md_file"
-    ;;
-  tp|typst)
-    typstConv
-    ;;
-  lt|latex)
-    LaTexConv
-    ;;
-  *)
-    echo "Error: Invalid output format '$output_string'"
-    usage
-    ;;
+md)
+  # Already printed the compiled markdown file, no need to print again
+  ;;
+pdf | odt | docx)
+  convert_with_pandoc "$compiled_md_file"
+  ;;
+tp | typst)
+  typstConv
+  ;;
+lt | latex)
+  LaTexConv
+  ;;
+*)
+  echo "Error: Invalid output format '$output_string'"
+  usage
+  ;;
 esac
