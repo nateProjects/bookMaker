@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.1.0
+# v0.1.1
 
 # Function to install on MacOS
 install_macos() {
@@ -23,16 +23,18 @@ install_redhat() {
 }
 
 # Detect the OS and run the appropriate function
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [ "$OSTYPE" == "darwin"* ]; then
   echo "Detected MacOS - Installing Pandoc and Typst"
   install_macos
-elif [[ -f /etc/debian_version ]]; then
+elif [ -f /etc/debian_version ]; then
   echo "Detected Debian-based Linux - Installing Pandoc and Typst"
   install_debian
-elif [[ -f /etc/redhat-release ]]; then
+elif [ -f /etc/redhat-release ]; then
   echo "Detected Redhat-based Linux - Installing Pandoc and Typst"
   install_redhat
 else
   echo "Unsupported OS. This script supports MacOS, Debian-based, and Redhat-based Linux distributions."
   exit 1
 fi
+
+chmod +x bookMaker md2typst
