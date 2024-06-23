@@ -1,6 +1,17 @@
 #!/bin/bash
-# v0.4.3
+# v0.4.4
 echo "MarkDown2Typst compiler"
+
+# Detect if the system is macOS and Homebrew is installed
+if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
+    # macOS with Homebrew - use Homebrew versions
+    SED="gsed"
+    GREP="ggrep"
+else
+    # Linux or macOS without Homebrew - use system versions
+    SED="$SED"
+    GREP="$GREP"
+fi
 
 # Initialize variables
 file=""
@@ -19,61 +30,61 @@ process_typst_file() {
   echo "Converting Markdown to Typst format"
 
   # Convert Markdown headings to Typst headings
-  sed -i -e 's/^# /= /g' "$1"
-  sed -i -e 's/^## /== /g' "$1"
-  sed -i -e 's/^### /=== /g' "$1"
-  sed -i -e 's/^#### /==== /g' "$1"
-  sed -i -e 's/^##### /===== /g' "$1"
-  sed -i -e 's/^###### /====== /g' "$1"
+  $SED -i -e 's/^# /= /g' "$1"
+  $SED -i -e 's/^## /== /g' "$1"
+  $SED -i -e 's/^### /=== /g' "$1"
+  $SED -i -e 's/^#### /==== /g' "$1"
+  $SED -i -e 's/^##### /===== /g' "$1"
+  $SED -i -e 's/^###### /====== /g' "$1"
 
   # Remove any remaining curly brackets
-  sed -i 's/{{//g; s/}}//g' "$1"
+  $SED -i 's/{{//g; s/}}//g' "$1"
 
   # Convert three dashes etc. to Typst pagebreak
-  # sed -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
+  # $SED -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
   # Alternatively Convert horizontal rules to Typst line
-  sed -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
+  $SED -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
 
   # Convert Markdown footnotes to Typst footnotes
-  sed -i 's/\[\^\(.*\)\]/#footnote[\1]/g' "$1"
+  $SED -i 's/\[\^\(.*\)\]/#footnote[\1]/g' "$1"
 
   # Convert Markdown block quotes to Typst quotes - removed autoquotes to fix problem with British quotes
-  sed -i -E 's/^> (.*)$/#quote(block:true, quotes:false)[\1]/g' "$1"
+  $SED -i -E 's/^> (.*)$/#quote(block:true, quotes:false)[\1]/g' "$1"
 
   # Convert Markdown italics to Typst emphasis
-  sed -i -E 's/_(.*?)_/\\_\1\\_/g' "$1"
-  sed -i -E 's/\*(.*?)\*/_\1_/g' "$1"
+  $SED -i -E 's/_(.*?)_/\\_\1\\_/g' "$1"
+  $SED -i -E 's/\*(.*?)\*/_\1_/g' "$1"
 
   # Convert Markdown bold to Typst strong
-  sed -i -E 's/\*\*(.*?)\*\*/\*\1\*/g' "$1"
-  sed -i -E 's/__(.*?)__/\\*\1\\*/g' "$1"
+  $SED -i -E 's/\*\*(.*?)\*\*/\*\1\*/g' "$1"
+  $SED -i -E 's/__(.*?)__/\\*\1\\*/g' "$1"
 
   # Convert HTML underline to Typst underline
-  sed -i -E 's/<u>(.*?)<\/u>/#underline[\1]/g' "$1"
+  $SED -i -E 's/<u>(.*?)<\/u>/#underline[\1]/g' "$1"
 
   # Convert Markdown comments to Typst comments
-  sed -i -E 's/%%(.*?)%%/\/\*\1\*\//g' "$1"
+  $SED -i -E 's/%%(.*?)%%/\/\*\1\*\//g' "$1"
 
   # Convert strikethrough text to Typst strike
-#  sed -i -E 's/~~(.*?)~~/#strike[\1]/g' "$1"
+#  $SED -i -E 's/~~(.*?)~~/#strike[\1]/g' "$1"
 
   # Convert highlighted text to Typst highlight
-  sed -i -E 's/==(.*?)==/#highlight[\1]/g' "$1"
+  $SED -i -E 's/==(.*?)==/#highlight[\1]/g' "$1"
 
   # Convert + bullets to - bullets
-  sed -i -E 's/^\+ /- /g' "$1"
+  $SED -i -E 's/^\+ /- /g' "$1"
 
   # Convert Markdown links to Typst links
-  sed -i -E 's/\[(.*?)\]\((.*?)\)/#link("\2")[\1]/g' "$1"
+  $SED -i -E 's/\[(.*?)\]\((.*?)\)/#link("\2")[\1]/g' "$1"
 
   # Remove Markdown front matter - can mistake for HR page break
-  # sed -i -e '/^---$/,/^---$/d' "$1"
+  # $SED -i -e '/^---$/,/^---$/d' "$1"
 
   # Remove everything between ```dataview and the next ``` - enable if needed
-  # sed -i '/^```dataview$/,/^```$/d' "$1"
+  # $SED -i '/^```dataview$/,/^```$/d' "$1"
 
   # Convert Markdown photos to Typst photos - presumes images are in the same directory
-  # sed -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
+  # $SED -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
 
   typst compile "$book_path/$bookname.typ"
 }
@@ -126,8 +137,8 @@ fi
 get_toml_value() {
   local file=$1
   local key=$2
-  # Extract the value using grep and sed
-  local value=$(grep -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
+  # Extract the value using $GREP and $SED
+  local value=$($GREP -oP "^$key\s*=\s*\"?\K[^\"]+" "$file")
   echo "$value" # needs this to output converted Typst
 }
 
@@ -161,24 +172,24 @@ replace_template_values() {
   local template_file="$book_path/TEMPLATE.typ"
   # Replace placeholders in TEMPLATE.typ
   echo "Replacing template values in $template_file"
-  sed -i "s/{{\$title}}/$title/g" "$template_file"
-  sed -i "s/{{\$sub-title}}/$sub_title/g" "$template_file"
-  sed -i "s/{{\$authors}}/$authors/g" "$template_file"
-  sed -i "s/{{\$description}}/$description/g" "$template_file"
-  sed -i "s/{{\$copyright-year}}/$copyright_year/g" "$template_file"
-  sed -i "s/{{\$this-edition}}/$this_edition/g" "$template_file"
-  sed -i "s/{{\$published-by}}/$published_by/g" "$template_file"
-  sed -i "s/{{\$printed-by}}/$printed_by/g" "$template_file"
-  sed -i "s/{{\$contact-address}}/$contact_address/g" "$template_file"
-  sed -i "s/{{\$website-address}}/$website_address/g" "$template_file"
-  sed -i "s/{{\$dedication}}/$dedication/g" "$template_file"
-  sed -i "s/{{\$page-size}}/$page_size/g" "$template_file"
-  sed -i "s/{{\$outer-margin}}/$outer_margin/g" "$template_file"
-  sed -i "s/{{\$inner-margin}}/$inner_margin/g" "$template_file"
-  sed -i "s/{{\$header}}/$header/g" "$template_file"
-  sed -i "s/{{\$footer}}/$footer/g" "$template_file"
-  # sed -i "s/{{\$contents}}/$contents/g" "$template_file"
-  sed -i "s/{{\$cover-image}}/$cover_image/g" "$template_file"
+  $SED -i "s/{{\$title}}/$title/g" "$template_file"
+  $SED -i "s/{{\$sub-title}}/$sub_title/g" "$template_file"
+  $SED -i "s/{{\$authors}}/$authors/g" "$template_file"
+  $SED -i "s/{{\$description}}/$description/g" "$template_file"
+  $SED -i "s/{{\$copyright-year}}/$copyright_year/g" "$template_file"
+  $SED -i "s/{{\$this-edition}}/$this_edition/g" "$template_file"
+  $SED -i "s/{{\$published-by}}/$published_by/g" "$template_file"
+  $SED -i "s/{{\$printed-by}}/$printed_by/g" "$template_file"
+  $SED -i "s/{{\$contact-address}}/$contact_address/g" "$template_file"
+  $SED -i "s/{{\$website-address}}/$website_address/g" "$template_file"
+  $SED -i "s/{{\$dedication}}/$dedication/g" "$template_file"
+  $SED -i "s/{{\$page-size}}/$page_size/g" "$template_file"
+  $SED -i "s/{{\$outer-margin}}/$outer_margin/g" "$template_file"
+  $SED -i "s/{{\$inner-margin}}/$inner_margin/g" "$template_file"
+  $SED -i "s/{{\$header}}/$header/g" "$template_file"
+  $SED -i "s/{{\$footer}}/$footer/g" "$template_file"
+  # $SED -i "s/{{\$contents}}/$contents/g" "$template_file"
+  $SED -i "s/{{\$cover-image}}/$cover_image/g" "$template_file"
 }
 
 # If -b is specified, set the bookname
