@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.4.4
+# v0.4.5
 echo "MarkDown2Typst compiler"
 
 # Detect if the system is macOS and Homebrew is installed
@@ -8,9 +8,9 @@ if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
     SED="gsed"
     GREP="ggrep"
 else
-    # Linux or macOS without Homebrew - use system versions
-    SED="$SED"
-    GREP="$GREP"
+    # Linux without Homebrew - use system versions
+    SED="sed"
+    GREP="grep"
 fi
 
 # Initialize variables
