@@ -163,4 +163,4 @@ Planned changes:
 
 Possible LaTeX / Tables / Bibliography / Citations / Mermaid / CSS support
 
-This readme - v0.4.3
+This readme - v0.5.0
