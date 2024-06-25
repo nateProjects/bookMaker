@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.4.9
+# v0.5.0
 echo "MarkDown2Typst compiler"
 
 # Detect if the system is macOS and Homebrew is installed
