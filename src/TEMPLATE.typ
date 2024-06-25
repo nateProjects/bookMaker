@@ -1,4 +1,4 @@
-// v0.4.9
+// v0.5.0
 #set par(justify: true)
 /* Set font */
 #set text(
