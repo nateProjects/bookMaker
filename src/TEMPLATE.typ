@@ -52,14 +52,23 @@
 #pagebreak()
 
 // Publisher Details
+// Publisher Details
 #page(align(center + bottom)[ 
-  #text(0.8em)[{{$published-by}}]
+  #text(0.8em)[{{$this-edition}} Edition]
+  #v(0.8em, weak: true)
+  #text(0.8em)[Copyright © {{$copyright-year}} {{$authors}}]
+  #v(0.8em, weak: true)
+  #text(0.8em)[{{$disclaimer}}]
+  #v(0.8em, weak: true)
+  #text(0.8em)[Published by {{$published-by}}]
+  #v(0.8em, weak: true)
+  #text(0.8em)[{{$contact-address}}] // Change to Publisher Address later
 ])
 
 #pagebreak()
 
 // Dedication
-#page(align(center)[
+#page(align(center + horizon)[
   #text(0.8em)[{{$dedication}}]
 ])
 
@@ -82,11 +91,12 @@
     // Are we on an odd page?
     let i = counter(page).at(loc).first()
     if calc.odd(i) {
-      return text(0.95em)[{{$title}}]
+      align(center, text(0.95em)[{{$authors}}])
     }
-  // The header always contains the author name on even pages
+  // The header always contains the author name on odd pages?
     if calc.even(i) {
-      return text(0.95em)[{{$authors}}]
+      align(center, text(0.95em)[{{$title}}])
+      // was return text(0.95em)[{{$title}}]
     }
   })
   )
