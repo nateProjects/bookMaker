@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.1.2
+# v0.5.0
 
 # Function to install on MacOS
 install_macos() {
