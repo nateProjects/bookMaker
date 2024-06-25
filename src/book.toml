@@ -1,3 +1,4 @@
+# v0.4.9
 [book]
 title = "Book Test"
 sub-title = "Sub Title"
@@ -10,6 +11,7 @@ printed-by = "ACME printing"
 contact-address = "1 Address"
 website-address = "http://address"
 dedication = "dedication"
+disclaimer = "disclaimer"
 
 [output]
 page-size = a5
