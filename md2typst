@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.4.5
+# v0.4.9
 echo "MarkDown2Typst compiler"
 
 # Detect if the system is macOS and Homebrew is installed
@@ -8,7 +8,7 @@ if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
     SED="gsed"
     GREP="ggrep"
 else
-    # Linux without Homebrew - use system versions
+    # Linux or macOS without Homebrew - use system versions
     SED="sed"
     GREP="grep"
 fi
@@ -158,6 +158,7 @@ read_toml_value() {
   contact_address=$(get_toml_value "$tomlpath" "contact-address")
   #website_address=$(get_toml_value "$tomlpath" "website-address")
   dedication=$(get_toml_value "$tomlpath" "dedication")
+  disclaimer=$(get_toml_value "$tomlpath" "disclaimer")  
   page_size=$(get_toml_value "$tomlpath" "page-size")
   outer_margin=$(get_toml_value "$tomlpath" "outer-margin")
   inner_margin=$(get_toml_value "$tomlpath" "inner-margin")
@@ -183,6 +184,7 @@ replace_template_values() {
   $SED -i "s/{{\$contact-address}}/$contact_address/g" "$template_file"
   $SED -i "s/{{\$website-address}}/$website_address/g" "$template_file"
   $SED -i "s/{{\$dedication}}/$dedication/g" "$template_file"
+  $SED -i "s/{{\$disclaimer}}/$disclaimer/g" "$template_file"  
   $SED -i "s/{{\$page-size}}/$page_size/g" "$template_file"
   $SED -i "s/{{\$outer-margin}}/$outer_margin/g" "$template_file"
   $SED -i "s/{{\$inner-margin}}/$inner_margin/g" "$template_file"
