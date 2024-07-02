@@ -15,8 +15,6 @@ It is not (yet) suitable for -
 
 Scholarly or Scientific works that require citations or diagrams
 
-Using bookMaker
-
 ## Install
 
 Clone or download the repository and move it to where you would like to run it from.
@@ -28,7 +26,6 @@ To install -
 ```
 sh ./installUnix.sh
 ```
-
 
 Windows - Please use Linux install under WSL or a VM and run the Linux installer
 
