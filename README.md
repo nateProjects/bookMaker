@@ -24,7 +24,11 @@ Requirements: MacOS or Linux / Windows WSL
 To install - 
 
 ```
+curl -fsSL https://typst.community/typst-install/install.sh | sh
+# Failing this you can run -
 sh ./installUnix.sh
+# or for Rust-based environments -
+install --locked typst-cli
 ```
 
 Windows - Please use Linux install under WSL or a VM and run the Linux installer
