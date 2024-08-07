@@ -85,6 +85,8 @@ It supports converting multiple markdown text files into PDF / Typst -
 - different page sizes
 - title page
 - table of contents
+- alignment (right or center)
+- bullet point variants (pluses or asterixes)
 
 Double curly quotes can be used {{ }} for embedded Typst code which are removed before compilation. So in theory anything that is possible in Typst can be created in your MarkDown documents.
 
