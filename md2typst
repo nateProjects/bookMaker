@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.5.0
+# v0.5.1
 echo "MarkDown2Typst compiler"
 
 # Detect if the system is macOS and Homebrew is installed
@@ -40,9 +40,7 @@ process_typst_file() {
   # Remove any remaining curly brackets
   $SED -i 's/{{//g; s/}}//g' "$1"
 
-  # Convert three dashes etc. to Typst pagebreak
-  # $SED -i 's/(\-\-\-|\*\*\*|___)$/#pagebreak()/g' "$1"
-  # Alternatively Convert horizontal rules to Typst line
+  # Convert horizontal rules to Typst line
   $SED -i -E 's/^(\-\-\-|\*\*\*|___)$/#line\(length: 100%\)/g' "$1"
 
   # Convert Markdown footnotes to Typst footnotes
@@ -62,31 +60,27 @@ process_typst_file() {
   # Convert HTML underline to Typst underline
   $SED -i -E 's/<u>(.*?)<\/u>/#underline[\1]/g' "$1"
 
+  # Convert HTML alignment to Typst alignment
+  $SED -i -E 's/<p align=center>(.*?)<\/p>/#align(center)[\1]/g' "$1"
+  $SED -i -E 's/<div align=center>(.*?)<\/div>/#align(center)[\1]/g' "$1"
+  $SED -i -E 's/<p align=right>(.*?)<\/p>/#align(right)[\1]/g' "$1"
+  $SED -i -E 's/<div align=right>(.*?)<\/div>/#align(right)[\1]/g' "$1"
+
   # Convert Markdown comments to Typst comments
   $SED -i -E 's/%%(.*?)%%/\/\*\1\*\//g' "$1"
-
-  # Convert strikethrough text to Typst strike
-#  $SED -i -E 's/~~(.*?)~~/#strike[\1]/g' "$1"
 
   # Convert highlighted text to Typst highlight
   $SED -i -E 's/==(.*?)==/#highlight[\1]/g' "$1"
 
   # Convert + bullets to - bullets
   $SED -i -E 's/^\+ /- /g' "$1"
+  # Convert * bullets to - bullets
+  $SED -i -E 's/^\* /- /g' "$1"
 
   # Convert Markdown links to Typst links
   $SED -i -E 's/\[(.*?)\]\((.*?)\)/#link("\2")[\1]/g' "$1"
 
-  # Remove Markdown front matter - can mistake for HR page break
-  # $SED -i -e '/^---$/,/^---$/d' "$1"
-
-  # Remove everything between ```dataview and the next ``` - enable if needed
-  # $SED -i '/^```dataview$/,/^```$/d' "$1"
-
-  # Convert Markdown photos to Typst photos - presumes images are in the same directory
-  # $SED -i 's/!\[\[\(.*\)\]\]/image("\1")/g' "$1"
-
-  typst compile "$book_path/$bookname.typ"
+  typst compile "$1"
 }
 
 # Parse command-line arguments
@@ -94,18 +88,22 @@ for arg in "$@"; do
   case $arg in
   -f=* | --file=*)
     file="${arg#*=}"
+    file="${file//\"/}" # Remove any quotes from the file path
     shift
     ;;
   -t=* | --template=*)
     template="${arg#*=}"
+    template="${template//\"/}" # Remove any quotes from the template path
     shift
     ;;
   -o=* | --out=*)
     out="${arg#*=}"
+    out="${out//\"/}" # Remove any quotes from the output path
     shift
     ;;
   -b=* | --book=*)
     bookname="${arg#*=}"
+    bookname="${bookname//\"/}" # Remove any quotes from the bookname
     shift
     ;;
   *)
@@ -123,14 +121,38 @@ fi
 
 # If -f is specified, run the compiler
 if [ -n "$file" ]; then
-  if [ -n "$out" ]; then
-    typst compile "$file.typ" "$out"
-    echo "Outputted $out"
-  else
-    echo "Error: Please specify the output file using -o"
-    usage
+  if [ ! -f "$file" ]; then
+    echo "Error: Input file '$file' not found"
+    exit 1
   fi
-  exit 0
+  
+  cp "$file" "${file%.*}.typ"
+  echo "Copied $file to ${file%.*}.typ"
+  process_typst_file "${file%.*}.typ"
+  echo "Processed ${file%.*}.typ"
+
+if [ -n "$out" ] || [ "$output_format" = "pdf" ]; then
+  if [ -z "$out" ]; then
+    # If -o=pdf was specified without a filename, use the input filename with .pdf extension
+    out="${file%.*}.pdf"
+  fi
+
+    # Determine the output format based on the file extension
+    output_format="${out##*.}"
+    
+    if [ "$output_format" = "typ" ]; then
+      echo "Typst file created: ${file%.*}.typ"
+    elif [ "$output_format" = "pdf" ]; then
+      typst compile "${file%.*}.typ" "$out" --format="pdf"
+      echo "Outputted $out"
+    else
+      echo "Error: Unsupported output format. Please use .typ or .pdf"
+      exit 1
+    fi
+  else
+    echo "No output file specified - presuming ${file%.*}.typ - use -o=FILENAME.pdf if you'd like pdf"
+  fi
+    exit 0
 fi
 
 # Function to read a value from a TOML file
@@ -196,14 +218,23 @@ replace_template_values() {
 
 # If -b is specified, set the bookname
 if [ -n "$bookname" ]; then
-
-  # ADD check the directory exists
-
   book_path="$bookname/book"
   src_path="$bookname/src"
   typ_file="$book_path/$bookname.typ"
   md_file="$book_path/$bookname.md"
   pdf_file="$book_path/$bookname.pdf"
+
+  # Check if the directory exists
+  if [ ! -d "$book_path" ]; then
+    echo "Error: Book directory '$book_path' not found"
+    exit 1
+  fi
+
+  # Check if the Markdown file exists
+  if [ ! -f "$md_file" ]; then
+    echo "Error: Markdown file '$md_file' not found"
+    exit 1
+  fi
 
   # Copy the Markdown content to the Typst file
   cp "$md_file" "$typ_file"
@@ -211,19 +242,15 @@ if [ -n "$bookname" ]; then
   # Process the Typst file
   process_typst_file "$typ_file"
 
-#  echo "$src_path/TEMPLATE.typ found?"
-
   # Check if there is a TEMPLATE.typ file in $bookName/src
   if [ -f "$src_path/TEMPLATE.typ" ]; then
     # Copy the TEMPLATE.typ file to the $bookName/book folder
-    # echo "Found $src_path/TEMPLATE.typ"
     cp "$src_path/TEMPLATE.typ" "$book_path/TEMPLATE.typ"
   fi
 
   # Check if there is a book.toml file in $bookName/src
   if [ -f "$src_path/book.toml" ]; then
     # Call the procedure to copy the values from book.toml to TEMPLATE.typ
-    # echo "add book.toml populating TEMPLATE.typ here"
     read_toml_value
     replace_template_values
   fi
@@ -233,7 +260,6 @@ if [ -n "$bookname" ]; then
     cat "$template" "$typ_file" >"$typ_file.tmp" && mv "$typ_file.tmp" "$typ_file"
   else # if template in book directory
     if [ -f "$book_path/TEMPLATE.typ" ]; then
-#      echo "Found $book_path/TEMPLATE.typ"
       cat "$book_path/TEMPLATE.typ" "$typ_file" >"$typ_file.tmp" && mv "$typ_file.tmp" "$typ_file"
     fi
   fi
