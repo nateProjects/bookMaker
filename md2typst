@@ -61,10 +61,10 @@ process_typst_file() {
   $SED -i -E 's/<u>(.*?)<\/u>/#underline[\1]/g' "$1"
 
   # Convert HTML alignment to Typst alignment
-  $SED -i -E 's/<p align=center>(.*?)<\/p>/#align(center)[\1]/g' "$1"
-  $SED -i -E 's/<div align=center>(.*?)<\/div>/#align(center)[\1]/g' "$1"
-  $SED -i -E 's/<p align=right>(.*?)<\/p>/#align(right)[\1]/g' "$1"
-  $SED -i -E 's/<div align=right>(.*?)<\/div>/#align(right)[\1]/g' "$1"
+  $SED -i -E 's/<p align="?center"?>(.*?)<\/p>/#align(center)[\1]/g' "$1"
+  $SED -i -E 's/<div align="?center"?>(.*?)<\/div>/#align(center)[\1]/g' "$1"
+  $SED -i -E 's/<p align="?right"?>(.*?)<\/p>/#align(right)[\1]/g' "$1"
+  $SED -i -E 's/<div align="?right"?>(.*?)<\/div>/#align(right)[\1]/g' "$1"
 
   # Convert Markdown comments to Typst comments
   $SED -i -E 's/%%(.*?)%%/\/\*\1\*\//g' "$1"
