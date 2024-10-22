@@ -1,5 +1,9 @@
 #!/bin/bash
-# v0.5.0
+# v0.5.1
+
+# The original script below has largely been superceded by the Typst install script above
+# curl -fsSL https://typst.community/typst-install/install.sh | sh
+# But it is left here for reference for local deployment purposes
 
 # Function to install on MacOS
 install_macos() {
@@ -14,7 +18,17 @@ install_macos() {
 # Function to install on Debian-based Linux
 install_debian() {
   sudo apt update
-  sudo apt install -y pandoc typst
+  sudo apt install -y pandoc
+  if ! sudo apt install -y typst; then
+    echo "Failed to install typst via apt. Checking for Snapd..."
+    if ! command -v snap &> /dev/null; then
+      echo "Snapd is not installed. Installing Snapd..."
+      sudo apt install -y snapd
+      sudo snap wait system seed.loaded
+    fi
+    echo "Installing typst via Snap..."
+    sudo snap install typst
+  fi
 }
 
 # Function to install on Redhat-based Linux

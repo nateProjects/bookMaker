@@ -1,5 +1,8 @@
-// v0.5.0
-#set par(justify: true)
+// v0.5.1
+#set par(
+  first-line-indent: 1em,
+  justify: true,
+)
 /* Set font */
 #set text(
   font: "Times New Roman", /* default = "Linux Libertine" */

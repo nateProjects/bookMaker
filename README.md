@@ -24,7 +24,11 @@ Requirements: MacOS or Linux / Windows WSL
 To install - 
 
 ```
+curl -fsSL https://typst.community/typst-install/install.sh | sh
+# Failing this you can run -
 sh ./installUnix.sh
+# or for Rust-based environments -
+install --locked typst-cli
 ```
 
 Windows - Please use Linux install under WSL or a VM and run the Linux installer
@@ -39,6 +43,8 @@ Configure your book details in BOOK-NAME/src/book.toml
 
 ## Usage
 
+### bookMaker
+
 Run bookMaker from the command line -
 
 `./bookMaker -book=BOOK-NAME -out=OUTPUT-TYPE`
@@ -48,6 +54,24 @@ eg. `./bookMaker -book=BOOK-NAME`
 (the -out is optional)
 
 This will take all the take all the MarkDown files in book-name/src, compile them together and output them as a single PDF file in BOOK-NAME/book
+
+### MD2Typst
+
+### Basic usage
+
+./md2typst -f=FILE.md -o=pdf
+
+(If you only want the .typ file no need to add -o)
+
+#### Advanced MD2Typst Usage
+
+-t=TEMPLATE = if you'd like to add a Typst template
+
+If you are working with MarkDown based book text files then you should use bookMaker directly, but md2typst can work with books too -
+
+./md2typst -b=BOOKDIRNAME
+
+Note: This presumes the existence of a Typst template and book.toml config
 
 ## Formatting
 
@@ -65,6 +89,8 @@ It supports converting multiple markdown text files into PDF / Typst -
 - different page sizes
 - title page
 - table of contents
+- alignment (right or center)
+- bullet point variants (pluses or asterixes)
 
 Double curly quotes can be used {{ }} for embedded Typst code which are removed before compilation. So in theory anything that is possible in Typst can be created in your MarkDown documents.
 
@@ -160,4 +186,4 @@ Planned changes:
 
 Possible LaTeX / Tables / Bibliography / Citations / Mermaid / CSS support
 
-This readme - v0.5.0
+This readme - v0.5.1
